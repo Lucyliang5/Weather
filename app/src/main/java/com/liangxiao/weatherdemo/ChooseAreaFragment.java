@@ -1,6 +1,7 @@
-package com.liangxiao.weatherdemo.db;
+package com.liangxiao.weatherdemo;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,6 +17,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.liangxiao.weatherdemo.R;
+import com.liangxiao.weatherdemo.db.City;
+import com.liangxiao.weatherdemo.db.County;
+import com.liangxiao.weatherdemo.db.Province;
 import com.liangxiao.weatherdemo.util.HttpUtil;
 import com.liangxiao.weatherdemo.util.Utility;
 
@@ -73,6 +77,12 @@ public class ChooseAreaFragment extends Fragment {
                 } else if (currentLevel == LEVEL_CITY) {
                     selectedCity = cityList.get(position);
                     queryCounties();
+                }else if (currentLevel == LEVEL_COUNTY){
+                    String weatherId = countyList.get(position).getWeaterId();
+                    Intent intent = new Intent(getActivity(),WeatherActivity.class);
+                    intent.putExtra("weather_id",weatherId);
+                    startActivity(intent);
+                    getActivity().finish();
                 }
             }
         });
