@@ -1,5 +1,6 @@
 package com.liangxiao.weatherdemo;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.liangxiao.weatherdemo.gson.Forecast;
 import com.liangxiao.weatherdemo.gson.Weather;
+import com.liangxiao.weatherdemo.service.AutoUpdateService;
 import com.liangxiao.weatherdemo.util.HttpUtil;
 import com.liangxiao.weatherdemo.util.Utility;
 
@@ -136,6 +138,12 @@ public class WeatherActivity extends AppCompatActivity {
     }
 
     private void showWeatherInfo(Weather weather) {
+        if (weather != null && "ok".equals(weather.status)) {
+            Intent intent = new Intent(this, AutoUpdateService.class);
+            startService(intent);
+        } else {
+            Toast.makeText(WeatherActivity.this, "获取天气信息失败", Toast.LENGTH_SHORT).show();
+        }
         String cityName = weather.basic.cityName;
         String degree = weather.now.temperature + "℃";
         String weatherInfo = weather.now.more.info;
@@ -189,14 +197,14 @@ public class WeatherActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                final String reponseText = response.body().string();
-                final Weather weather = Utility.handleWeatherResponse(reponseText);
+                final String responseText = response.body().string();
+                final Weather weather = Utility.handleWeatherResponse(responseText);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         if (weather != null && "ok".equals(weather.status)) {
                             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
-                            editor.putString("weather", reponseText);
+                            editor.putString("weather", responseText);
                             editor.apply();
                             showWeatherInfo(weather);
                         } else {
